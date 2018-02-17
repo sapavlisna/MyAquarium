@@ -113,6 +113,9 @@
     <Compile Include="Interfaces\ILightManager.cs" />
     <Compile Include="Interfaces\IMainController.cs" />
     <Compile Include="Interfaces\IPwm.cs" />
+    <Compile Include="Log\ILogger.cs" />
+    <Compile Include="Log\Logger.cs" />
+    <Compile Include="Log\LoggerTypes.cs" />
     <Compile Include="MainController.cs" />
     <Compile Include="Model\AquariumContext.cs" />
     <Compile Include="Model\Temperature.cs" />
