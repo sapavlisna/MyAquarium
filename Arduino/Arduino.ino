@@ -46,18 +46,29 @@ void loop()
 			return;
 		}
 
-    
-		if (command == "gettemp")
-		{    
-			String pin = GetValueFromString(incomingMessage, command.length());
-			String index = GetValueFromString(incomingMessage, command.length() + pin.length());
-			OneWire oneWireDS(pin.toInt());
-			DallasTemperature senzoryDS(&oneWireDS);
-			senzoryDS.requestTemperatures();
-			Serial.println(senzoryDS.getTempCByIndex(index.toInt()));
+   if (command == "gettemps")
+   {    
+      String pin = GetValueFromString(incomingMessage, command.length());
+      OneWire oneWireDS(pin.toInt());
+      DallasTemperature senzoryDS(&oneWireDS);
+      senzoryDS.begin();
+      senzoryDS.requestTemperatures();
+
+      int count = senzoryDS.getDeviceCount();
+
+      String result = "";
+      int i = 0;
+      for(i = 0; i< count; i++)
+      {
+        DeviceAddress address;
+        senzoryDS.getAddress(address, i);
+
+        result += AddressToString(address) + ";" + senzoryDS.getTempCByIndex(i) + ";";       
+      }
+      Serial.println(result);
 
       return;
-		}
+    }
 
 		WriteOnSerial("FALSE " + command);
 	}
@@ -77,6 +88,18 @@ void WriteOnSerial(String message)
 String GetInfo()
 {
 	return _programName + "  " + _version;
+}
+
+String AddressToString(DeviceAddress deviceAddress)
+{
+  String address = "";
+  for (uint8_t i = 0; i < 8; i++)
+  {
+    if (deviceAddress[i] < 16) Serial.print("0");
+    address += String(deviceAddress[i], HEX);
+  }
+
+  return address;
 }
 
 String GetValueFromString(String message, int startIndex)
