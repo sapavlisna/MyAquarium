@@ -63,7 +63,7 @@ void loop()
         DeviceAddress address;
         senzoryDS.getAddress(address, i);
 
-        result += AddressToString(address) + ";" + senzoryDS.getTempCByIndex(i) + ";";       
+        result += AddressToString(address) + "|" + senzoryDS.getTempCByIndex(i) + ";";       
       }
       Serial.println(result);
 
