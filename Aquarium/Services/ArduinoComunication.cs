@@ -160,6 +160,14 @@ namespace Aquarium
             return Read() == "OK";
         }
 
+        public string GetTemp()
+        {
+            logger.Write($"Reading temperatures.", LoggerTypes.LogLevel.Info);
+            Write($"gettemp");
+
+            return Read();
+        }
+
         public void Write(string message, SerialPort serial)
         {
             logger.Write($"Write to arduino: '{message}'", LoggerTypes.LogLevel.Info);

@@ -78,7 +78,7 @@ namespace Aquarium
             builder.RegisterType<ConfigManager>().As<IConfigManager>().SingleInstance();
             builder.RegisterType<Logger>().As<ILogger>().SingleInstance();
             builder.RegisterType<LightManager>().As<ILightManager>().SingleInstance();
-
+            builder.RegisterType<Model.AquariumContext>().InstancePerRequest();
 
             Container = builder.Build();
             //Logger.Write("Setup Autofac completed", LoggerTypes.LogLevel.Info);
