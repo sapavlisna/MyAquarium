@@ -46,9 +46,9 @@ namespace Aquarium
                         var lights = autofacScope.Resolve<ILightManager>();
                         Task.Run(() => lights.Run());
 
-                        //Thread.Sleep(2000);
-                        //var tempService = autofacScope.Resolve<ITempService>();
-                        //Task.Run(() => tempService.Run());
+                        Thread.Sleep(2000);
+                        var tempService = autofacScope.Resolve<ITempService>();
+                        Task.Run(() => tempService.Run());
                         break;
 
                     }

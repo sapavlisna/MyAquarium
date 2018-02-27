@@ -27,14 +27,16 @@ namespace Aquarium
             this.logger = logger;
             this.configManager = configManager;
 
-            
             timer = new Timer(timerInterval);
             dayOfWeek = DateTime.Now.DayOfWeek;
         }
 
+
         private void ConfigManager_ConfigChanged(object sender, EventArgs e)
         {
+            GetConfig();
             BuildLightTable();
+            SetCurrentState();
         }
 
         public void Run()

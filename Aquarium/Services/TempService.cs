@@ -64,19 +64,26 @@ namespace Aquarium
             var records = result.Split(';');
             var resultList = new List<Temperature>();
 
-            foreach(var record in records)
+            foreach (var record in records)
             {
-                if (string.IsNullOrEmpty(record) || record == "\r\n")
-                    continue;
-
-                var values = record.Split('|');
-
-                resultList.Add(new Temperature
+                try
                 {
-                    CreateDate = DateTime.Now,
-                    SensorId = values[0],
-                    Value = Double.Parse(values[1].Replace('.',','))
-                });
+                    if (string.IsNullOrEmpty(record) || record == "\r\n")
+                        continue;
+
+                    var values = record.Split('|');
+
+                    resultList.Add(new Temperature
+                    {
+                        CreateDate = DateTime.Now,
+                        SensorId = values[0],
+                        Value = Double.Parse(values[1].Replace('.', ','))
+                    });
+                }
+                catch (Exception ex)
+                {
+                    _logger.Write($"Cannot insert temperature. Got data: {record}");
+                }
             }
 
             return resultList;

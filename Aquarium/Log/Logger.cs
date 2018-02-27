@@ -15,6 +15,7 @@ namespace Aquarium
         private static string logFile = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + "/log.txt";
         private static string logFileError = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + "/logError.txt";
 
+
         public string GetLogPath()
         {
             return logFile;

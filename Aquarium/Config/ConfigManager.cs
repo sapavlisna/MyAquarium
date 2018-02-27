@@ -47,6 +47,7 @@ namespace Aquarium
         private void Watcher_Changed(object sender, FileSystemEventArgs e)
         {
             _config = LoadConfig();
+            OnConfigChanged();
         }
 
         public void OnConfigChanged()
