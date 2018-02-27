@@ -13,25 +13,53 @@ namespace Aquarium
 {
     public class ConfigManager : IConfigManager
     {
+        public delegate void ConfigChangedHandler(object sender, EventArgs e);
+        public event ConfigChangedHandler ConfigChanged;
+
         private const string configFileName = "config.json";
         private ILogger logger;
+        private Config _config;
 
         public ConfigManager(ILogger logger)
         {
             this.logger = logger;
+            _config = LoadConfig();
+            SetConfigFileWatcher();
         }
 
-        public  Config GetConfig()
+        public Config GetConfig()
         {
-            return LoadConfig();
+            return _config;
         }
 
-        private  string LoadConfigFile()
+        private void SetConfigFileWatcher()
+        {
+            var watcher = new FileSystemWatcher();
+            watcher.Path = GetConfigDirectory();
+
+            watcher.NotifyFilter = NotifyFilters.LastWrite;
+            watcher.Filter = configFileName;
+            watcher.Changed += Watcher_Changed;
+
+            watcher.EnableRaisingEvents = true;
+        }
+
+        private void Watcher_Changed(object sender, FileSystemEventArgs e)
+        {
+            _config = LoadConfig();
+        }
+
+        public void OnConfigChanged()
+        {
+            ConfigChanged(this, EventArgs.Empty);
+        }
+
+        private string LoadConfigFile()
         {
             logger.Write("Searching config");
 
             if (!File.Exists(GetConfigFullPath()))
-            {                
+            {
                 logger.Write("Creating default config", LoggerTypes.LogLevel.Info);
                 var defaultConfig = GetDefaultConfig();
                 logger.Write("Saving default config", LoggerTypes.LogLevel.Info);
@@ -45,7 +73,7 @@ namespace Aquarium
             return File.ReadAllText(GetConfigFullPath());
         }
 
-        private  Config GetDefaultConfig()
+        private Config GetDefaultConfig()
         {
             logger.Write($"Fill config by default values", LoggerTypes.LogLevel.Info);
             var config = new Config
@@ -79,6 +107,11 @@ namespace Aquarium
                             LightIntensity = 0
                         }
                     }
+                },
+                Temperature = new Temperature
+                {
+                    Interval = 1,
+                    Pin = 4
                 }
             };
 
@@ -86,7 +119,7 @@ namespace Aquarium
             return config;
         }
 
-        private  void SaveConfigFile(string fileContent)
+        private void SaveConfigFile(string fileContent)
         {
             logger.Write($"Save config to path {GetConfigFullPath()}", LoggerTypes.LogLevel.Info);
             logger.Write($"Save config to path {fileContent}", LoggerTypes.LogLevel.Info);
@@ -103,14 +136,14 @@ namespace Aquarium
             logger.Write($"Config saved", LoggerTypes.LogLevel.Info);
         }
 
-        public  Config LoadConfig()
+        public Config LoadConfig()
         {
             Config config = new Config();
             try
             {
                 var loadedConfig = LoadConfigFile();
 
-                logger.Write(loadedConfig,LoggerTypes.LogLevel.System);
+                logger.Write(loadedConfig, LoggerTypes.LogLevel.System);
                 config = JsonConvert.DeserializeObject<Config>(loadedConfig);
             }
             catch (Exception e)
@@ -121,7 +154,7 @@ namespace Aquarium
             return config;
         }
 
-        public  void SaveConfig(IConfig config)
+        public void SaveConfig(IConfig config)
         {
             logger.Write($"Serialize config", LoggerTypes.LogLevel.Info);
 
@@ -131,21 +164,21 @@ namespace Aquarium
 
         }
 
-        public  string SerializeConfig(IConfig config)
+        public string SerializeConfig(IConfig config)
         {
             logger.Write("Going to serialize config", LoggerTypes.LogLevel.Info);
             var serialized = JsonConvert.SerializeObject(config, Formatting.Indented);
             return serialized;
         }
 
-        private  string GetConfigFullPath()
+        private string GetConfigFullPath()
         {
             var configFilePath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + "/" + configFileName;
             logger.Write($"ConfigFile path: {configFilePath}", LoggerTypes.LogLevel.Info);
             return configFilePath;
         }
 
-        private  string GetConfigDirectory()
+        private string GetConfigDirectory()
         {
             return Directory.GetCurrentDirectory();
         }

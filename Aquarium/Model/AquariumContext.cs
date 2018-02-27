@@ -13,6 +13,11 @@ namespace Aquarium.Model
 
     public class AquariumContext : DbContext
     {
+        public AquariumContext(string connectionString) :base(connectionString)
+        {
+            
+        }
+
         public AquariumContext() : base()
         {
             

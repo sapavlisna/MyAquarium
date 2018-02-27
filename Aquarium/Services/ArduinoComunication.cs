@@ -19,6 +19,8 @@ namespace Aquarium
         private List<int> _baudRates = new List<int> {115200, 19200, 230400, 38400, 4800, 57600, 9600 };
         private ILogger logger;
 
+        private bool _isCommunicating = false;
+        private object _communitationLockingObject = new object();
 
         public ArduinoComunication(ILogger logger)
         {
@@ -152,22 +154,6 @@ namespace Aquarium
             }
         }
 
-        public bool SetPWM(int pin, int value)
-        {
-            logger.Write($"Setting PWM on pin {pin} with value {value}.", LoggerTypes.LogLevel.Info);
-            Write($"setpwm;{pin};{value}");
-
-            return Read() == "OK";
-        }
-
-        public string GetTemp()
-        {
-            logger.Write($"Reading temperatures.", LoggerTypes.LogLevel.Info);
-            Write($"gettemp");
-
-            return Read();
-        }
-
         public void Write(string message, SerialPort serial)
         {
             logger.Write($"Write to arduino: '{message}'", LoggerTypes.LogLevel.Info);
@@ -198,6 +184,53 @@ namespace Aquarium
             return result;
         }
 
-        //public double GetTemp()
+        private void Lock()
+        {
+            int i = 0;
+            while (_isCommunicating == true && i < 10)
+            {
+                Thread.Sleep(200);
+            }
+
+            lock (_communitationLockingObject)
+            {
+                _isCommunicating = true;
+            }
+        }
+
+        private void UnLock()
+        {
+            lock (_communitationLockingObject)
+            {
+                _isCommunicating = false;
+            }
+        }
+
+
+        public bool SetPWM(int pin, int value)
+        {
+            Lock();
+            logger.Write($"Setting PWM on pin {pin} with value {value}.", LoggerTypes.LogLevel.Info);
+            Write($"setpwm;{pin};{value}");
+
+            Thread.Sleep(1000);
+            var result = Read();
+            UnLock();
+
+            return result  == "OK";
+        }
+
+        public string GetTemp(int pin)
+        {
+            Lock();
+            logger.Write($"Reading temperatures.", LoggerTypes.LogLevel.Info);
+            Write($"gettemps;{pin};");
+
+            Thread.Sleep(2000);
+            var result = Read();
+            UnLock();
+
+            return result;
+        }
     }
 }

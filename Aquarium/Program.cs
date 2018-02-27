@@ -45,6 +45,10 @@ namespace Aquarium
 
                         var lights = autofacScope.Resolve<ILightManager>();
                         Task.Run(() => lights.Run());
+
+                        //Thread.Sleep(2000);
+                        //var tempService = autofacScope.Resolve<ITempService>();
+                        //Task.Run(() => tempService.Run());
                         break;
 
                     }
@@ -64,7 +68,7 @@ namespace Aquarium
             {
                 //logger.Write(e);
                 Console.WriteLine(e.Message);
-
+                Console.ReadKey();
             }
 
         }
@@ -78,7 +82,8 @@ namespace Aquarium
             builder.RegisterType<ConfigManager>().As<IConfigManager>().SingleInstance();
             builder.RegisterType<Logger>().As<ILogger>().SingleInstance();
             builder.RegisterType<LightManager>().As<ILightManager>().SingleInstance();
-            builder.RegisterType<Model.AquariumContext>().InstancePerRequest();
+            builder.RegisterType<Model.AquariumContext>().InstancePerDependency();
+            builder.RegisterType<TempService>().As<ITempService>().SingleInstance();
 
             Container = builder.Build();
             //Logger.Write("Setup Autofac completed", LoggerTypes.LogLevel.Info);

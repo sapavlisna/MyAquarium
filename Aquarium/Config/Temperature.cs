@@ -9,6 +9,7 @@ namespace Aquarium.Settings
     public class Temperature
     {
         public int Interval { get; set; }
+        public int Pin { get; set; }
 
     }
 }

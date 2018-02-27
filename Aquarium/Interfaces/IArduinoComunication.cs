@@ -11,6 +11,6 @@ namespace Aquarium
         bool SetPWM(int pin, int value);
         void Write(string message);
         string Read();
-        string GetTemp();
+        string GetTemp(int pin);
     }
 }

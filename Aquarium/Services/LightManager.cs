@@ -27,16 +27,22 @@ namespace Aquarium
             this.logger = logger;
             this.configManager = configManager;
 
+            
             timer = new Timer(timerInterval);
             dayOfWeek = DateTime.Now.DayOfWeek;
+        }
 
-            Run();
+        private void ConfigManager_ConfigChanged(object sender, EventArgs e)
+        {
+            BuildLightTable();
         }
 
         public void Run()
         {
             try
             {
+                this.configManager.ConfigChanged += ConfigManager_ConfigChanged;
+
                 if (!arduino.IsConnected)
                 {
                     logger.Write("Cannot find Arduino. Finish program");
@@ -50,6 +56,7 @@ namespace Aquarium
 
                 logger.Write($"Interval for light change is {timerInterval} seconds.", LoggerTypes.LogLevel.Info);
 
+                BuildLightTable();
                 SetCurrentState();
 
                 timer.Interval = timerInterval;
@@ -91,6 +98,7 @@ namespace Aquarium
             try
             {
                 CheckDayChange();
+                dayOfWeek = DateTime.Now.DayOfWeek;
 
                 var nextPlanned =
                     this.lightStates.Where(p => p.Status == LightDayStatus.Planned)
@@ -155,19 +163,17 @@ namespace Aquarium
         {
             if(dayOfWeek == DayOfWeek.Tuesday && DateTime.Now.DayOfWeek == DayOfWeek.Sunday)
                 BuildLightTable();
-
-            dayOfWeek = DateTime.Now.DayOfWeek;
         }
 
         public void Stop()
         {
+            this.configManager.ConfigChanged -= ConfigManager_ConfigChanged;
             timer.Stop();
         }
 
         private void GetConfig()
         {
             configLights = configManager.GetConfig().LightConfig;
-            BuildLightTable();
         }
 
         private void BuildLightTable()
