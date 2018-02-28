@@ -9,7 +9,8 @@ Author:  Pavel Mazalek
 #include <DallasTemperature.h>
 const String _version = "0.2";
 const String _programName = "Aquarium Controller";
-const int _serialBaudRate = 115200;
+
+#define USONIC_DIV 58.0
 
 // the setup function runs once when you press reset or power the board
 void setup()
@@ -21,7 +22,7 @@ void setup()
 void loop()
 {
 
-  
+
 	if (Serial.available() > 0)
 	{
 		String incomingMessage = Serial.readString();
@@ -46,33 +47,82 @@ void loop()
 			return;
 		}
 
-   if (command == "gettemps")
-   {    
-      String pin = GetValueFromString(incomingMessage, command.length());
-      OneWire oneWireDS(pin.toInt());
-      DallasTemperature senzoryDS(&oneWireDS);
-      senzoryDS.begin();
-      senzoryDS.requestTemperatures();
+		if (command == "gettemps")
+		{
+			String pin = GetValueFromString(incomingMessage, command.length());
+			OneWire oneWireDS(pin.toInt());
+			DallasTemperature senzoryDS(&oneWireDS);
+			senzoryDS.begin();
+			senzoryDS.requestTemperatures();
 
-      int count = senzoryDS.getDeviceCount();
+			int count = senzoryDS.getDeviceCount();
 
-      String result = "";
-      int i = 0;
-      for(i = 0; i< count; i++)
-      {
-        DeviceAddress address;
-        senzoryDS.getAddress(address, i);
+			String result = "";
+			int i = 0;
+			for (i = 0; i< count; i++)
+			{
+				DeviceAddress address;
+				senzoryDS.getAddress(address, i);
 
-        result += AddressToString(address) + "|" + senzoryDS.getTempCByIndex(i) + ";";       
-      }
-      Serial.println(result);
+				result += AddressToString(address) + "|" + senzoryDS.getTempCByIndex(i) + ";";
+			}
+			Serial.println(result);
 
-      return;
-    }
+			return;
+		}
+
+		if (command == "getlight")
+		{
+			String pin = GetValueFromString(incomingMessage, command.length());
+			Serial.println(analogRead(pin.toInt()));
+
+			return;
+		}
+
+		if (command == "getdistance")
+		{
+			String triggerPin = GetValueFromString(incomingMessage, command.length());
+			String echoPin = GetValueFromString(incomingMessage, command.length() + triggerPin.length() + 1);
+			String samples = GetValueFromString(incomingMessage, command.length() + triggerPin.length() + echoPin.length() + 2);
+
+			pinMode(triggerPin.toInt(), OUTPUT);
+			pinMode(echoPin.toInt(), INPUT);
+			int distance = measure(samples.toInt(), triggerPin.toInt(), echoPin.toInt());
+			Serial.println(distance);
+			return;
+		}
+
+
 
 		WriteOnSerial("FALSE " + command);
 	}
 }
+
+long measure(int samples, int trigger, int echo)
+{
+	long measureSum = 0;
+	for (int i = 0; i < samples; i++)
+	{
+		delay(5);
+		measureSum += singleMeasurement(trigger, echo);
+	}
+	return measureSum / samples;
+}
+
+long singleMeasurement(int trigger, int echo)
+{
+	long duration = 0;
+	// Measure: Put up Trigger...
+	digitalWrite(trigger, HIGH);
+	// ... wait for 11 µs ...
+	delayMicroseconds(11);
+	// ... put the trigger down ...
+	digitalWrite(trigger, LOW);
+	// ... and wait for the echo ...
+	duration = pulseIn(echo, HIGH);
+	return (long)(((float)duration / USONIC_DIV) * 10.0);
+}
+
 
 void SetPWM(int pin, int value)
 {
@@ -92,14 +142,14 @@ String GetInfo()
 
 String AddressToString(DeviceAddress deviceAddress)
 {
-  String address = "";
-  for (uint8_t i = 0; i < 8; i++)
-  {
-    if (deviceAddress[i] < 16) Serial.print("0");
-    address += String(deviceAddress[i], HEX);
-  }
+	String address = "";
+	for (uint8_t i = 0; i < 8; i++)
+	{
+		if (deviceAddress[i] < 16) Serial.print("0");
+		address += String(deviceAddress[i], HEX);
+	}
 
-  return address;
+	return address;
 }
 
 String GetValueFromString(String message, int startIndex)
@@ -111,13 +161,13 @@ String GetValueFromString(String message, int startIndex)
 	String value = message.substring(startIndex, endIndex);
 	value.toLowerCase();
 
-  //Serial.println("------Debg-----");
+	//Serial.println("------Debg-----");
 	//Serial.print(startIndex);
 	//Serial.print(" ");
 	//Serial.print(endIndex);
 	//Serial.print(" ");
 	//Serial.println(value);
-  //Serial.println("------END------");
+	//Serial.println("------END------");
 
 	return value;
 }
