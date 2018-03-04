@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
-namespace Aquarium.Settings
+namespace Aquarium.Config.Model
 {
     public class LightState
     {

@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Security.Cryptography.X509Certificates;
-using Aquarium.Settings;
+using Aquarium.Config.Model;
 
 namespace Aquarium
 {
-    public interface ILightManager
+    public interface ILightControllService
     {
         void Run();
         void Stop();

@@ -10,19 +10,21 @@ using Aquarium.Log;
 
 namespace Aquarium
 {
-    public class ArduinoComunication : IArduinoComunication
+    public class ArduinoService : IArduinoService
     {
         public bool IsConnected { get { return _serialPort != null; } }
         public string ReadedData { get; private set; }
 
         private SerialPort _serialPort;
-        private List<int> _baudRates = new List<int> {115200, 19200, 230400, 38400, 4800, 57600, 9600 };
+        private List<int> _baudRates = new List<int> { 115200, 19200, 230400, 38400, 4800, 57600, 9600 };
         private ILogger logger;
 
         private bool _isCommunicating = false;
         private object _communitationLockingObject = new object();
 
-        public ArduinoComunication(ILogger logger)
+        private const string _endConstant = "END#";
+
+        public ArduinoService(ILogger logger)
         {
             this.logger = logger;
             //_serialPort = new SerialPort(ConfigManager.GetConfig().SerialPort.Port);
@@ -90,7 +92,7 @@ namespace Aquarium
             {
                 logger.Write($"Try to log to port {port} with baudrate {baudRate}", LoggerTypes.LogLevel.Info);
                 _serialPort.BaudRate = baudRate;
-                if(_serialPort.IsOpen)
+                if (_serialPort.IsOpen)
                     _serialPort.Close();
                 OpenSerial();
 
@@ -138,12 +140,13 @@ namespace Aquarium
                     var counter = 0;
                     string result = "";
 
-                    while (result == "" && counter < 10)
-                    {
-                        result = _serialPort.ReadLine();
-                        if (result == "???")
-                            result = "";
-                    }
+                    result = Read();
+                    //while (result == "" && counter < 10)
+                    //{
+                    //    result = _serialPort.ReadLine();
+                    //    if (result == "???")
+                    //        result = "";
+                    //}
                     logger.Write($"Readed {result}", LoggerTypes.LogLevel.Info);
                     return result;
                 }
@@ -171,16 +174,27 @@ namespace Aquarium
 
         public string Read()
         {
-            var result = Read(_serialPort);
+            int i = 0;
+            string result = "";
 
+            while (!result.EndsWith(_endConstant) && i < 10)
+            {
+                result += Read(_serialPort);
+                if (result == "")
+                    Thread.Sleep(500);
+                i++;
+            }
+
+            result = result.Replace(_endConstant, "");
             return result;
         }
 
         private string Read(SerialPort serial)
         {
             var result = serial.ReadExisting();
+            if(result != "")
+                logger.Write($"Read from arduino: '{result}'", LoggerTypes.LogLevel.Info);
 
-            logger.Write($"Read from arduino: '{result}'", LoggerTypes.LogLevel.Info);
             return result;
         }
 
@@ -209,28 +223,115 @@ namespace Aquarium
 
         public bool SetPWM(int pin, int value)
         {
-            Lock();
-            logger.Write($"Setting PWM on pin {pin} with value {value}.", LoggerTypes.LogLevel.Info);
-            Write($"setpwm;{pin};{value}");
+            string result = "";
 
-            Thread.Sleep(1000);
-            var result = Read();
-            UnLock();
+            try
+            {
+                Lock();
+                logger.Write($"Setting PWM on pin {pin} with value {value}.", LoggerTypes.LogLevel.Info);
+                Write($"setpwm;{pin};{value}");
 
-            return result  == "OK";
+                result = Read();
+            }
+            catch (Exception ex)
+            {
+                logger.Write(ex);
+            }
+            finally
+            {
+                UnLock();
+            }
+
+            return result == "OK";
         }
 
         public string GetTemp(int pin)
         {
-            Lock();
-            logger.Write($"Reading temperatures.", LoggerTypes.LogLevel.Info);
-            Write($"gettemps;{pin};");
+            string result = "";
+            try
+            {
+                Lock();
+                logger.Write($"Reading temperatures.", LoggerTypes.LogLevel.Info);
+                Write($"gettemps;{pin};");
 
-            Thread.Sleep(2000);
-            var result = Read();
-            UnLock();
+                result = Read();
+            }
+            catch (Exception ex)
+            {
+                logger.Write(ex);
+            }
+            finally
+            {
+                UnLock();
+            }
 
             return result;
+        }
+
+        public int GetLightIntensity(int pin)
+        {
+            try
+            {
+                Lock();
+                logger.Write($"Reading light intensity on pin {pin}.", LoggerTypes.LogLevel.Info);
+                Write($"getlight;{pin};");
+
+                var result = Read();
+                int value;
+
+                var isParsed = int.TryParse(result, out value);
+
+                if (isParsed)
+                    return value;
+            }
+            catch (Exception ex)
+            {
+                logger.Write(ex);
+            }
+            finally
+            {
+                UnLock();
+            }
+
+            return -1;
+        }
+
+        public int GetDistance(int triggerPin, int echoPin, int samples)
+        {
+            int value = 0;
+            bool isParsed = false;
+            try
+            {
+                Lock();
+                logger.Write(
+                    $"Reading distance on trigger pin {triggerPin} and echo pin {echoPin} doing {samples} samples.",
+                    LoggerTypes.LogLevel.Info);
+                Write($"getdistance;{triggerPin};{echoPin};{samples};");
+
+                int sleepTime;
+
+                if (30 * samples < 500)
+                    sleepTime = 500;
+                else
+                    sleepTime = 30 * samples;
+
+                Thread.Sleep(sleepTime);
+                var result = Read();
+                isParsed = int.TryParse(result, out value);
+            }
+            catch (Exception ex)
+            {
+                logger.Write(ex);
+            }
+            finally
+            {
+                UnLock();
+            }
+
+            if (isParsed)
+                return value;
+
+            return -1;
         }
     }
 }

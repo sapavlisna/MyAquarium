@@ -1,10 +1,9 @@
 using System;
 using System.Collections.Generic;
-using Aquarium.Settings;
 
-namespace Aquarium
+namespace Aquarium.Config.Model
 {
-    public class ConfigLIghts : IConfigLIghts
+    public class ConfigLIghts
     {
         public int LightMinValue { get; set; }
         public int LightMaxValue { get; set; }
@@ -14,5 +13,6 @@ namespace Aquarium
         public int LightPinNumber { get; set; }
         
         public IEnumerable<LightState> LightStates { get; set; }
+        public bool TurnedOn { get; set; }
     }
 }

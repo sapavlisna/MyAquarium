@@ -9,6 +9,7 @@ Author:  Pavel Mazalek
 #include <DallasTemperature.h>
 const String _version = "0.2";
 const String _programName = "Aquarium Controller";
+const String _endConstant = "END#";
 
 #define USONIC_DIV 58.0
 
@@ -32,7 +33,7 @@ void loop()
 		if (command == "info" or command == "info\r" or command == "info\r\n")
 		{
 
-			WriteOnSerial("OK " + GetInfo());
+			WriteOnSerial("OK " + GetInfo() + _endConstant);
 			return;
 		}
 
@@ -42,7 +43,7 @@ void loop()
 			String pwmValue = GetValueFromString(incomingMessage, (command.length() + pin.length() + 1));
 
 			SetPWM(pin.toInt(), pwmValue.toInt());
-			WriteOnSerial("OK");
+			WriteOnSerial("OK" + _endConstant);
 
 			return;
 		}
@@ -66,7 +67,7 @@ void loop()
 
 				result += AddressToString(address) + "|" + senzoryDS.getTempCByIndex(i) + ";";
 			}
-			Serial.println(result);
+			Serial.println(result + _endConstant);
 
 			return;
 		}
@@ -74,7 +75,7 @@ void loop()
 		if (command == "getlight")
 		{
 			String pin = GetValueFromString(incomingMessage, command.length());
-			Serial.println(analogRead(pin.toInt()));
+			Serial.println(analogRead(pin.toInt()) + _endConstant);
 
 			return;
 		}
@@ -88,7 +89,7 @@ void loop()
 			pinMode(triggerPin.toInt(), OUTPUT);
 			pinMode(echoPin.toInt(), INPUT);
 			int distance = measure(samples.toInt(), triggerPin.toInt(), echoPin.toInt());
-			Serial.println(distance);
+			Serial.println(distance + _endConstant);
 			return;
 		}
 
@@ -114,7 +115,7 @@ long singleMeasurement(int trigger, int echo)
 	long duration = 0;
 	// Measure: Put up Trigger...
 	digitalWrite(trigger, HIGH);
-	// ... wait for 11 µs ...
+	// ... wait for 11 ï¿½s ...
 	delayMicroseconds(11);
 	// ... put the trigger down ...
 	digitalWrite(trigger, LOW);
@@ -132,7 +133,7 @@ void SetPWM(int pin, int value)
 void WriteOnSerial(String message)
 {
 	delay(50);
-	Serial.println(message);
+	Serial.print(message);
 }
 
 String GetInfo()

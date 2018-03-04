@@ -2,38 +2,68 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
+using Aquarium.Classes;
 using Aquarium.Model;
+using Config.Model.Config;
+using Timer = System.Timers.Timer;
 
 namespace Aquarium
 {
     public class TempService : ITempService
     {
-        private IArduinoComunication _arduino;
+        private IArduinoService _arduino;
         private ILogger _logger;
         private IConfigManager _config;
         private AquariumContext _dbContext;
         private Timer _timer;
+        private int _interval;
+        private bool _isRunning;
 
-        public TempService(IArduinoComunication arduino, ILogger logger, IConfigManager config, AquariumContext dbContext)
+        public TempService(IArduinoService arduino, ILogger logger, IConfigManager config, AquariumContext dbContext)
         {
             _arduino = arduino;
             _logger = logger;
             _config = config;
             _dbContext = dbContext;
 
-            _timer = new Timer(_config.GetConfig().Temperature.Interval * 1000 * 60);
+            _config.ConfigChanged += _config_ConfigChanged;
+            _timer = new Timer();
             _timer.Elapsed += _timer_Elapsed;
+            SetTimerInterval();
+        }
 
-            _timer_Elapsed(this, null);
+        private void _config_ConfigChanged(object sender, EventArgs e)
+        {
+            SetTimerInterval();
+        }
+
+        private void SetTimerInterval()
+        {
+            var interval = _config.GetConfig().Temperature.Interval * Constants.timeIntervalMultiplier;
+            _interval = interval;
+
+            if (interval != _interval && _isRunning)
+            {
+                this.Stop();
+                this.Run();
+            }
         }
 
         private async void _timer_Elapsed(object sender, ElapsedEventArgs e)
         {
-            var resultString = GetTemp();
-            var results = ParseResults(resultString);
-            await SaveAsync(results);
+            try
+            {
+                var resultString = GetTemp();
+                var results = ParseResults(resultString);
+                await SaveAsync(results);
+            }
+            catch (Exception ex)
+            {
+                _logger.Write(ex);
+            }
         }
 
         private async Task SaveAsync(List<Temperature> results)
@@ -51,12 +81,16 @@ namespace Aquarium
 
         public void Run()
         {
+            _timer.Interval = _interval;
             _timer.Start();
+            _timer_Elapsed(this, null);
+            _isRunning = true;
         }
 
         public void Stop()
         {
             _timer.Stop();
+            _isRunning = false;
         }
 
         private List<Temperature> ParseResults(string result)
@@ -91,7 +125,7 @@ namespace Aquarium
 
         private string GetTemp()
         {
-           return _arduino.GetTemp(_config.GetConfig().Temperature.Pin);
+            return _arduino.GetTemp(_config.GetConfig().Temperature.Pin);
         }
     }
 }

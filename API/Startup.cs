@@ -7,8 +7,10 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
 using Aquarium;
+using Aquarium.Services;
 using Autofac;
 using Autofac.Integration.WebApi;
+using Config.Model.Config;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Owin;
@@ -42,10 +44,11 @@ namespace API
 
             builder.RegisterType<Logger>().As<ILogger>().SingleInstance();
             builder.RegisterType<ConfigManager>().As<IConfigManager>().SingleInstance();
-            builder.RegisterType<ArduinoComunication>().As<IArduinoComunication>().SingleInstance();
-            builder.RegisterType<LightManager>().As<ILightManager>().SingleInstance();
+            builder.RegisterType<ArduinoService>().As<IArduinoService>().SingleInstance();
+            builder.RegisterType<LightControllService>().As<ILightControllService>().SingleInstance();
             builder.RegisterType<MainController>().As<IMainController>().SingleInstance();
-
+            builder.RegisterType<LightIntensityService>().As<ILightIntensityService>().SingleInstance();
+            builder.RegisterType<SurfaceService>().As<ISurfaceService>().SingleInstance();
 
 
             var container = builder.Build();

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
 using Aquarium;
+using Config.Model.Config;
 
 namespace API.Controllers
 {
@@ -18,13 +19,13 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public IConfig GetConfig()
+        public Aquarium.Config.Model.Config GetConfig()
         {
             return _configManager.GetConfig();
         }
 
         [HttpPost]
-        public void UpdateConfig(IConfig config)
+        public void UpdateConfig(Aquarium.Config.Model.Config config)
         {
             _configManager.SaveConfig(config);
         }

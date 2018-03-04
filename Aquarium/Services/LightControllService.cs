@@ -4,24 +4,25 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
+using Aquarium.Config.Model;
 using Aquarium.Log;
-using Aquarium.Settings;
+using Config.Model.Config;
 
 namespace Aquarium
 {
-    public class LightManager : ILightManager
+    public class LightControllService : ILightControllService
     {
         private ConfigLIghts configLights;
         private Timer timer;
         private int timerInterval = 2000;
-        private IArduinoComunication arduino;
+        private IArduinoService arduino;
         private int currentIntensity = 0;
         private IEnumerable<LightState> lightStates;
         private ILogger logger;
         private IConfigManager configManager;
         private DayOfWeek dayOfWeek;
 
-        public LightManager(IArduinoComunication arduino, ILogger logger, IConfigManager configManager)
+        public LightControllService(IArduinoService arduino, ILogger logger, IConfigManager configManager)
         {
             this.arduino = arduino;
             this.logger = logger;
@@ -29,6 +30,7 @@ namespace Aquarium
 
             timer = new Timer(timerInterval);
             dayOfWeek = DateTime.Now.DayOfWeek;
+            this.configManager.ConfigChanged += ConfigManager_ConfigChanged;
         }
 
 
@@ -43,7 +45,7 @@ namespace Aquarium
         {
             try
             {
-                this.configManager.ConfigChanged += ConfigManager_ConfigChanged;
+               
 
                 if (!arduino.IsConnected)
                 {
@@ -169,8 +171,8 @@ namespace Aquarium
 
         public void Stop()
         {
-            this.configManager.ConfigChanged -= ConfigManager_ConfigChanged;
-            timer.Stop();
+            timer.Stop(); 
+            arduino.SetPWM(configManager.GetConfig().LightConfig.LightPinNumber, 0);
         }
 
         private void GetConfig()

@@ -2,7 +2,7 @@
 
 namespace Aquarium
 {
-    public interface IArduinoComunication
+    public interface IArduinoService
     {
         bool IsConnected { get; }
 
@@ -12,5 +12,7 @@ namespace Aquarium
         void Write(string message);
         string Read();
         string GetTemp(int pin);
+        int GetDistance(int triggerPin, int echoPin, int samples);
+        int GetLightIntensity(int pin);
     }
 }

@@ -94,17 +94,9 @@
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Data.SQLite, Version=1.0.107.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Data.SQLite.Core.1.0.107.0\lib\net451\System.Data.SQLite.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Data.SQLite.EF6, Version=1.0.107.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Data.SQLite.EF6.1.0.107.0\lib\net451\System.Data.SQLite.EF6.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Data.SQLite.Linq, Version=1.0.107.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Data.SQLite.Linq.1.0.107.0\lib\net451\System.Data.SQLite.Linq.dll</HintPath>
-    </Reference>
     <Reference Include="System.Data.SqlServerCe, Version=4.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.SqlServer.Compact.4.0.8876.1\lib\net40\System.Data.SqlServerCe.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System.Drawing" />
     <Reference Include="System.IO.Compression.FileSystem" />
@@ -117,31 +109,38 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Services\ArduinoComunication.cs" />
-    <Compile Include="Interfaces\IArduinoComunication.cs" />
-    <Compile Include="Interfaces\ILightManager.cs" />
+    <Compile Include="Classes\Constants.cs" />
+    <Compile Include="Config\Model\LightIntensity.cs" />
+    <Compile Include="Config\Model\Surface.cs" />
+    <Compile Include="Model\LightIntensity.cs" />
+    <Compile Include="Model\Surface.cs" />
+    <Compile Include="Services\ArduinoService.cs" />
+    <Compile Include="Services\Interfaces\ILightIntensityService.cs" />
+    <Compile Include="Services\Interfaces\IArduinoService.cs" />
+    <Compile Include="Services\Interfaces\ILightControllService.cs" />
     <Compile Include="Interfaces\IMainController.cs" />
     <Compile Include="Interfaces\IPwm.cs" />
     <Compile Include="Log\ILogger.cs" />
     <Compile Include="Log\Logger.cs" />
     <Compile Include="Log\LoggerTypes.cs" />
-    <Compile Include="MainController.cs" />
+    <Compile Include="Classes\MainController.cs" />
     <Compile Include="Model\AquariumContext.cs" />
     <Compile Include="Model\Temperature.cs" />
-    <Compile Include="Interfaces\ITempService.cs" />
-    <Compile Include="Services\LightManager.cs" />
+    <Compile Include="Services\Interfaces\ITempService.cs" />
+    <Compile Include="Services\Interfaces\ISurfaceService.cs" />
+    <Compile Include="Services\LightControllService.cs" />
+    <Compile Include="Services\LightIntensityService.cs" />
+    <Compile Include="Services\SurfaceService.cs" />
     <Compile Include="Services\TempService.cs" />
-    <Compile Include="Config\Config.cs" />
+    <Compile Include="Config\Model\Config.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Services\Pwm.cs" />
+    <Compile Include="Classes\Pwm.cs" />
     <Compile Include="Config\ConfigManager.cs" />
-    <Compile Include="Config\ConfigLights.cs" />
-    <Compile Include="Config\IConfig.cs" />
-    <Compile Include="Config\IConfigLIghts.cs" />
+    <Compile Include="Config\Model\ConfigLights.cs" />
     <Compile Include="Config\IConfigManager.cs" />
-    <Compile Include="Config\LightState.cs" />
-    <Compile Include="Config\Temperature.cs" />
+    <Compile Include="Config\Model\LightState.cs" />
+    <Compile Include="Config\Model\Temperature.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -159,9 +158,7 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Classes\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>
@@ -170,11 +167,4 @@
     if not exist "$(TargetDir)amd64" md "$(TargetDir)amd64"
     xcopy /s /y "$(SolutionDir)packages\Microsoft.SqlServer.Compact.4.0.8876.1\NativeBinaries\amd64\*.*" "$(TargetDir)amd64"</PostBuildEvent>
   </PropertyGroup>
-  <Import Project="..\packages\System.Data.SQLite.Core.1.0.107.0\build\net451\System.Data.SQLite.Core.targets" Condition="Exists('..\packages\System.Data.SQLite.Core.1.0.107.0\build\net451\System.Data.SQLite.Core.targets')" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\packages\System.Data.SQLite.Core.1.0.107.0\build\net451\System.Data.SQLite.Core.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\System.Data.SQLite.Core.1.0.107.0\build\net451\System.Data.SQLite.Core.targets'))" />
-  </Target>
 </Project>

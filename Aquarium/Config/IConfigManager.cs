@@ -1,14 +1,16 @@
 ﻿using System;
+using Aquarium;
+using Aquarium.Config.Model;
 
-namespace Aquarium
+namespace Config.Model.Config
 {
     public interface IConfigManager
     {
         event ConfigManager.ConfigChangedHandler ConfigChanged;
 
-        Config GetConfig();
-        Config LoadConfig();
-        void SaveConfig(IConfig config);
-        string SerializeConfig(IConfig config);
+        Aquarium.Config.Model.Config GetConfig();
+        Aquarium.Config.Model.Config LoadConfig();
+        void SaveConfig(Aquarium.Config.Model.Config config);
+        string SerializeConfig(Aquarium.Config.Model.Config config);
     }
 }

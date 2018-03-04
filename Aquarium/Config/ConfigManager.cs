@@ -5,8 +5,9 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Aquarium.Config.Model;
 using Aquarium.Log;
-using Aquarium.Settings;
+using Config.Model.Config;
 using Newtonsoft.Json;
 
 namespace Aquarium
@@ -18,7 +19,7 @@ namespace Aquarium
 
         private const string configFileName = "config.json";
         private ILogger logger;
-        private Config _config;
+        private Config.Model.Config _config;
 
         public ConfigManager(ILogger logger)
         {
@@ -27,7 +28,7 @@ namespace Aquarium
             SetConfigFileWatcher();
         }
 
-        public Config GetConfig()
+        public Config.Model.Config GetConfig()
         {
             return _config;
         }
@@ -74,10 +75,10 @@ namespace Aquarium
             return File.ReadAllText(GetConfigFullPath());
         }
 
-        private Config GetDefaultConfig()
+        private Config.Model.Config GetDefaultConfig()
         {
             logger.Write($"Fill config by default values", LoggerTypes.LogLevel.Info);
-            var config = new Config
+            var config = new Config.Model.Config
             {
                 LogInfo = true,
                 LightConfig = new ConfigLIghts
@@ -87,6 +88,7 @@ namespace Aquarium
                     LightMinValue = 0,
                     LightPinNumber = 9,
                     UseSlowTurnOn = true,
+                    TurnedOn = true,
                     LightStates = new List<LightState>
                     {
                         new LightState
@@ -112,7 +114,22 @@ namespace Aquarium
                 Temperature = new Temperature
                 {
                     Interval = 1,
-                    Pin = 4
+                    Pin = 4,
+                    TurnedOn = true
+                },
+                LightIntensity = new LightIntensity
+                {
+                    TurnedOn = true,
+                    Interval = 1,
+                    Pins = new List<int> { 4 }
+                },
+                Surface = new Surface 
+                {
+                    TurnedOn = true,
+                    Samples = 20,
+                    TriggerPin = 12,
+                    EchoPin = 11,
+                    Interval = 1
                 }
             };
 
@@ -137,15 +154,15 @@ namespace Aquarium
             logger.Write($"Config saved", LoggerTypes.LogLevel.Info);
         }
 
-        public Config LoadConfig()
+        public Config.Model.Config LoadConfig()
         {
-            Config config = new Config();
+            Config.Model.Config config = new Config.Model.Config();
             try
             {
                 var loadedConfig = LoadConfigFile();
 
                 logger.Write(loadedConfig, LoggerTypes.LogLevel.System);
-                config = JsonConvert.DeserializeObject<Config>(loadedConfig);
+                config = JsonConvert.DeserializeObject<Config.Model.Config>(loadedConfig);
             }
             catch (Exception e)
             {
@@ -155,7 +172,7 @@ namespace Aquarium
             return config;
         }
 
-        public void SaveConfig(IConfig config)
+        public void SaveConfig(Config.Model.Config config)
         {
             logger.Write($"Serialize config", LoggerTypes.LogLevel.Info);
 
@@ -165,7 +182,7 @@ namespace Aquarium
 
         }
 
-        public string SerializeConfig(IConfig config)
+        public string SerializeConfig(Config.Model.Config config)
         {
             logger.Write("Going to serialize config", LoggerTypes.LogLevel.Info);
             var serialized = JsonConvert.SerializeObject(config, Formatting.Indented);

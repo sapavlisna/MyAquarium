@@ -4,6 +4,6 @@
     {
         bool SetupArduinoConnection();
         void SetupLogger();
-        void StartLights();
+        void StartLightController();
     }
 }

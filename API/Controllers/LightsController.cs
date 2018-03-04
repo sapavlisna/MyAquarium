@@ -5,35 +5,35 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
 using Aquarium;
-using Aquarium.Settings;
+using Aquarium.Config.Model;
 
 namespace API.Controllers
 {
     public class LightsController :ApiController
     {
-        private ILightManager _lightManager;
+        private ILightControllService _lightControllService;
 
         public LightsController()
         {
             
         }
 
-        public LightsController(ILightManager lightManager)
+        public LightsController(ILightControllService lightControllService)
         {
-            _lightManager = lightManager;
+            _lightControllService = lightControllService;
         }
 
         [HttpPost]
         public void SetIntensity(int pin, int intensity)
         {
-            _lightManager.SetIntensity(pin, intensity);
+            _lightControllService.SetIntensity(pin, intensity);
         }
 
         [Route("table")]
         [HttpGet]
         public IEnumerable<LightState> Get()
         {
-            return _lightManager.GetLightTable();
+            return _lightControllService.GetLightTable();
         }
     }
 }
