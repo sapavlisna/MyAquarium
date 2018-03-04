@@ -43,6 +43,7 @@ namespace Aquarium
             watcher.Changed += Watcher_Changed;
 
             watcher.EnableRaisingEvents = true;
+
         }
 
         private void Watcher_Changed(object sender, FileSystemEventArgs e)
