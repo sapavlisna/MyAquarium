@@ -24,31 +24,39 @@ namespace Aquarium
 
         public MainController()
         {
-            SetupAutofac();
-            using (var autofacScope = Container.BeginLifetimeScope())
+            try
             {
-                _configManager = autofacScope.Resolve<IConfigManager>();
-                _logger = autofacScope.Resolve<ILogger>();
-                _arduinoService = autofacScope.Resolve<IArduinoService>();
-                _lightControllService = autofacScope.Resolve<ILightControllService>();
-                _tempService = autofacScope.Resolve<ITempService>();
-                _lightIntensityService = autofacScope.Resolve<ILightIntensityService>();
-                _surfaceService = autofacScope.Resolve<ISurfaceService>();
-            }
+                SetupAutofac();
+                using (var autofacScope = Container.BeginLifetimeScope())
+                {
+                    _configManager = autofacScope.Resolve<IConfigManager>();
+                    _logger = autofacScope.Resolve<ILogger>();
+                    _arduinoService = autofacScope.Resolve<IArduinoService>();
+                    _lightControllService = autofacScope.Resolve<ILightControllService>();
+                    _tempService = autofacScope.Resolve<ITempService>();
+                    _lightIntensityService = autofacScope.Resolve<ILightIntensityService>();
+                    _surfaceService = autofacScope.Resolve<ISurfaceService>();
+                }
 
-            SetupLogger();
-            if (SetupArduinoConnection())
-            {
-                _logger.Write("Starting services.", LoggerTypes.LogLevel.System);
-                StartLightController();
-                StartMeasureTemp();
-                StartMeasureLightIntensity();
-                StartMeasureSurface();
-                _logger.Write("Starting services finished.", LoggerTypes.LogLevel.System);
+
+                if (SetupArduinoConnection())
+                {
+                    _logger.Write("Starting services.", LoggerTypes.LogLevel.System);
+                    StartLightController();
+                    StartMeasureTemp();
+                    StartMeasureLightIntensity();
+                    StartMeasureSurface();
+                    _logger.Write("Starting services finished.", LoggerTypes.LogLevel.System);
+                }
+                else
+                {
+                    throw new Exception("Error with arduino");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                throw new Exception("Error with arduino");
+                var logger = new Logger();
+                logger.Write(ex);
             }
         }
 

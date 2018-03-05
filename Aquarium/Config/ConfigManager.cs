@@ -59,7 +59,7 @@ namespace Aquarium
 
         private string LoadConfigFile()
         {
-            logger.Write("Searching config");
+            logger.Write("Searching config",LoggerTypes.LogLevel.System);
 
             if (!File.Exists(GetConfigFullPath()))
             {
@@ -70,7 +70,7 @@ namespace Aquarium
             }
             else
             {
-                logger.Write($"Found config {this.GetConfigFullPath()}");
+                logger.Write($"Found config {this.GetConfigFullPath()}", LoggerTypes.LogLevel.System);
             }
 
             return File.ReadAllText(GetConfigFullPath());
