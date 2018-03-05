@@ -56,9 +56,11 @@ namespace Aquarium
         {
             if (_configManager.GetConfig().LightIntensity.TurnedOn)
             {
-                _logger.Write("Starting intensity measure service.", LoggerTypes.LogLevel.System);
+                _logger.Write("Starting light intensity measure service.", LoggerTypes.LogLevel.System);
                 _lightIntensityService.Run();
             }
+            else
+                _logger.Write("Skip light intensity measure service.", LoggerTypes.LogLevel.System);
         }
 
         private void StartMeasureSurface()
@@ -68,6 +70,8 @@ namespace Aquarium
                 _logger.Write("Starting surface measure service.", LoggerTypes.LogLevel.System);
                 _surfaceService.Run();
             }
+            else
+                _logger.Write("Skip surface measure service.", LoggerTypes.LogLevel.System);
         }
 
         private void StartMeasureTemp()
@@ -77,6 +81,8 @@ namespace Aquarium
                 _logger.Write("Starting temperature measure service.", LoggerTypes.LogLevel.System);
                 _tempService.Run();
             }
+            else
+                _logger.Write("Skip temperature measure service.", LoggerTypes.LogLevel.System);
         }
 
         public void StartLightController()
@@ -86,6 +92,8 @@ namespace Aquarium
                 _logger.Write("Starting light control service.", LoggerTypes.LogLevel.System);
                 _lightControllService.Run();
             }
+            else
+                _logger.Write("Skip light control service.", LoggerTypes.LogLevel.System);
         }
 
         private void SetupAutofac()
