@@ -27,17 +27,11 @@ namespace Aquarium
 
             var logLine = $"{DateTime.Now} {logLevel}\t{message}{Environment.NewLine}";
 
-            try
-            {
                 lock (streamWriter)
                 {
                     streamWriter.Write(logLine);
                     streamWriter.Flush();
                 }
-            }
-            catch (IOException)
-            {
-            }
 
             Console.Write(logLine);
         }
