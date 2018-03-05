@@ -13,7 +13,6 @@ namespace Aquarium
     {
         public bool LogInfo { get; set; }
         private static string logFile = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + "/log.txt";
-        private static string logFileError = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + "/logError.txt";
 
 
         public string GetLogPath()
@@ -21,7 +20,7 @@ namespace Aquarium
             return logFile;
         }
 
-        public  void Write(string message, LoggerTypes.LogLevel logLevel = LoggerTypes.LogLevel.Error)
+        public void Write(string message, LoggerTypes.LogLevel logLevel = LoggerTypes.LogLevel.Error)
         {
             if (logLevel == LoggerTypes.LogLevel.Info && !LogInfo)
                 return;
@@ -32,15 +31,11 @@ namespace Aquarium
             {
                 using (StreamWriter streamWriter = new StreamWriter(logFile, append: true))
                 {
-                    streamWriter.Write(logLine);
+                    streamWriter.WriteAsync(logLine);
                 }
             }
             catch (IOException)
             {
-                using (StreamWriter streamWriter = new StreamWriter(logFileError, append: true))
-                {
-                    streamWriter.Write(logLine);
-                }
             }
 
             Console.Write(logLine);
