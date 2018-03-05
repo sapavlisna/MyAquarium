@@ -9,15 +9,18 @@ using Aquarium.Log;
 
 namespace Aquarium
 {
-    public  class Logger : ILogger
+    public class Logger : ILogger
     {
         public bool LogInfo { get; set; }
-        private static string logFile = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + "/log.txt";
-        private StreamWriter streamWriter = new StreamWriter(logFile, append: true);
+        private static string _logFilePath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + "/";
+
+        private string _fileName = "log";
+        private string _fileExtension = ".txt";
+        private int _logNumber = 1;
 
         public string GetLogPath()
         {
-            return logFile;
+            return _logFilePath + _fileName + _fileExtension;
         }
 
         public void Write(string message, LoggerTypes.LogLevel logLevel = LoggerTypes.LogLevel.Error)
@@ -25,18 +28,24 @@ namespace Aquarium
             if (logLevel == LoggerTypes.LogLevel.Info && !LogInfo)
                 return;
 
-            var logLine = $"{DateTime.Now} {logLevel}\t{message}{Environment.NewLine}";
-
-                lock (streamWriter)
+            var logLine = "";
+            using (var stream = File.OpenWrite(GetLogPath()))
+            {
+                using (var streamWriter = new StreamWriter(stream))
                 {
-                    streamWriter.Write(logLine);
-                    streamWriter.Flush();
+                    lock (streamWriter)
+                    {
+                        logLine = $"{DateTime.Now} {logLevel}\t{message}{Environment.NewLine}";
+                        streamWriter.Write(logLine);
+                        streamWriter.Flush();
+                    }
                 }
+            }
 
             Console.Write(logLine);
         }
 
-        public  void Write(Exception e)
+        public void Write(Exception e)
         {
             Write(GetAllExceptionMessages(e));
         }
@@ -44,7 +53,7 @@ namespace Aquarium
         private string GetAllExceptionMessages(Exception e)
         {
             if (e != null)
-                return  e.Message + Environment.NewLine + e.StackTrace + Environment.NewLine + GetAllExceptionMessages(e.InnerException);
+                return e.Message + Environment.NewLine + e.StackTrace + Environment.NewLine + GetAllExceptionMessages(e.InnerException);
 
             return "";
         }
