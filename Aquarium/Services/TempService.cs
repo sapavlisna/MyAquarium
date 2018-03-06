@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
 using Aquarium.Classes;
+using Aquarium.Log;
 using Aquarium.Model;
 using Config.Model.Config;
 using Timer = System.Timers.Timer;
@@ -56,6 +57,7 @@ namespace Aquarium
         {
             try
             {
+                _logger.Write("Getting Temps", LoggerTypes.LogLevel.Info);
                 var resultString = GetTemp();
                 var results = ParseResults(resultString);
                 await SaveAsync(results);
@@ -125,6 +127,7 @@ namespace Aquarium
 
         private string GetTemp()
         {
+            _logger.Write("Call arduino Getting Temps", LoggerTypes.LogLevel.Info);
             return _arduino.GetTemp(_config.GetConfig().Temperature.Pin);
         }
     }

@@ -254,6 +254,7 @@ namespace Aquarium
             string result = "";
             try
             {
+                logger.Write("Going to lock serial comunication", LoggerTypes.LogLevel.Info);
                 Lock();
                 logger.Write($"Reading temperatures.", LoggerTypes.LogLevel.Info);
                 Write($"gettemps;{pin};");
