@@ -201,6 +201,8 @@ namespace Aquarium
         private void Lock()
         {
             int i = 0;
+
+            logger.Write($"Locking serial port", LoggerTypes.LogLevel.Info);
             while (_isCommunicating == true && i < 10)
             {
                 Thread.Sleep(200);
@@ -208,12 +210,14 @@ namespace Aquarium
 
             lock (_communitationLockingObject)
             {
+                logger.Write($"Serial port is locked", LoggerTypes.LogLevel.Info);
                 _isCommunicating = true;
             }
         }
 
         private void UnLock()
         {
+            logger.Write($"Unlocking serial port", LoggerTypes.LogLevel.Info);
             lock (_communitationLockingObject)
             {
                 _isCommunicating = false;
