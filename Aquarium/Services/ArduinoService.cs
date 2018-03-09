@@ -23,12 +23,13 @@ namespace Aquarium
         private object _communitationLockingObject = new object();
 
         private const string _endConstant = "END#";
+        private const int _initWaitTime = 5000;
+        private const int _readTimeout = 5000;
+        private const int _writeTimeout = 5000;
 
         public ArduinoService(ILogger logger)
         {
             this.logger = logger;
-            //_serialPort = new SerialPort(ConfigManager.GetConfig().SerialPort.Port);
-            //_serialPort.BaudRate = ConfigManager.GetConfig().SerialPort.BaudRate;
         }
 
         public override string ToString()
@@ -38,7 +39,7 @@ namespace Aquarium
 
         public SerialPort FindSerialPort()
         {
-            logger.Write("Finding serial port", LoggerTypes.LogLevel.Info);
+            logger.Write("Finding serial port", LoggerTypes.LogLevel.System);
             var ports = new List<string>();
 
             logger.Write("Check environment", LoggerTypes.LogLevel.Info);
@@ -66,7 +67,10 @@ namespace Aquarium
             {
                 var connected = TryToConnect(port);
                 if (connected)
+                {
+
                     return _serialPort;
+                }
             }
 
             return null;
@@ -75,18 +79,18 @@ namespace Aquarium
         private void OpenSerial()
         {
             _serialPort.Open();
-            Thread.Sleep(1000);
+            logger.Write($"Arduino restarted on opening port, waiting {_initWaitTime}ms.", LoggerTypes.LogLevel.System);
+            Thread.Sleep(_initWaitTime);
         }
 
         public bool TryToConnect(string port)
         {
             logger.Write("Try baud rates", LoggerTypes.LogLevel.Info);
-            if (_serialPort != null)
-                _serialPort.Dispose();
+            _serialPort?.Dispose();
 
             _serialPort = new SerialPort(port);
-            _serialPort.ReadTimeout = 2000;
-            _serialPort.WriteTimeout = 2000;
+            _serialPort.ReadTimeout = _readTimeout;
+            _serialPort.WriteTimeout = _writeTimeout;
 
             foreach (var baudRate in _baudRates)
             {
@@ -135,18 +139,7 @@ namespace Aquarium
                 {
                     Write(message);
 
-                    Thread.Sleep(1500);
-
-                    var counter = 0;
-                    string result = "";
-
-                    result = Read();
-                    //while (result == "" && counter < 10)
-                    //{
-                    //    result = _serialPort.ReadLine();
-                    //    if (result == "???")
-                    //        result = "";
-                    //}
+                    var result = Read();
                     logger.Write($"Readed {result}", LoggerTypes.LogLevel.Info);
                     return result;
                 }
@@ -174,24 +167,14 @@ namespace Aquarium
 
         public string Read()
         {
-            int i = 0;
-            string result = "";
+            var result = Read(_serialPort);
 
-            while (!result.EndsWith(_endConstant) && i < 10)
-            {
-                result += Read(_serialPort);
-                if (result == "")
-                    Thread.Sleep(500);
-                i++;
-            }
-
-            result = result.Replace(_endConstant, "");
             return result;
         }
 
         private string Read(SerialPort serial)
         {
-            var result = serial.ReadExisting();
+            var result = serial.ReadTo(_endConstant);
             if(result != "")
                 logger.Write($"Read from arduino: '{result}'", LoggerTypes.LogLevel.Info);
 

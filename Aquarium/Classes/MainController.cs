@@ -38,10 +38,9 @@ namespace Aquarium
                     _surfaceService = autofacScope.Resolve<ISurfaceService>();
                 }
 
-
+                _logger.Write("Starting services.", LoggerTypes.LogLevel.System);
                 if (SetupArduinoConnection())
                 {
-                    _logger.Write("Starting services.", LoggerTypes.LogLevel.System);
                     StartLightController();
                     StartMeasureTemp();
                     StartMeasureLightIntensity();

@@ -22,8 +22,6 @@ void setup()
 // the loop function runs over and over again until power down or reset
 void loop()
 {
-
-
 	if (Serial.available() > 0)
 	{
 		String incommingMessage = Serial.readString();
