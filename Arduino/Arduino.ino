@@ -26,9 +26,9 @@ void loop()
 
 	if (Serial.available() > 0)
 	{
-		String incomingMessage = Serial.readString();
+		String incommingMessage = Serial.readString();
 
-		String command = GetValueFromString(incomingMessage, 0);
+		String command = GetValueFromString(incommingMessage, 0);
 
 		if (command == "info" or command == "info\r" or command == "info\r\n")
 		{
@@ -39,8 +39,8 @@ void loop()
 
 		if (command == "setpwm" or command == "setpwm\r" or command == "setpwm\r\n")
 		{
-			String pin = GetValueFromString(incomingMessage, command.length());
-			String pwmValue = GetValueFromString(incomingMessage, (command.length() + pin.length() + 1));
+			String pin = GetValueFromString(incommingMessage, command.length());
+			String pwmValue = GetValueFromString(incommingMessage, (command.length() + pin.length() + 1));
 
 			SetPWM(pin.toInt(), pwmValue.toInt());
 			WriteOnSerial("OK" + _endConstant);
@@ -50,7 +50,7 @@ void loop()
 
 		if (command == "gettemps")
 		{
-			String pin = GetValueFromString(incomingMessage, command.length());
+			String pin = GetValueFromString(incommingMessage, command.length());
 			OneWire oneWireDS(pin.toInt());
 			DallasTemperature senzoryDS(&oneWireDS);
 			senzoryDS.begin();
@@ -74,7 +74,7 @@ void loop()
 
 		if (command == "getlight")
 		{
-			String pin = GetValueFromString(incomingMessage, command.length());
+			String pin = GetValueFromString(incommingMessage, command.length());
 			Serial.println(analogRead(pin.toInt()) + _endConstant);
 
 			return;
@@ -82,9 +82,9 @@ void loop()
 
 		if (command == "getdistance")
 		{
-			String triggerPin = GetValueFromString(incomingMessage, command.length());
-			String echoPin = GetValueFromString(incomingMessage, command.length() + triggerPin.length() + 1);
-			String samples = GetValueFromString(incomingMessage, command.length() + triggerPin.length() + echoPin.length() + 2);
+			String triggerPin = GetValueFromString(incommingMessage, command.length());
+			String echoPin = GetValueFromString(incommingMessage, command.length() + triggerPin.length() + 1);
+			String samples = GetValueFromString(incommingMessage, command.length() + triggerPin.length() + echoPin.length() + 2);
 
 			pinMode(triggerPin.toInt(), OUTPUT);
 			pinMode(echoPin.toInt(), INPUT);
