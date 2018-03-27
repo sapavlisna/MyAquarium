@@ -13,11 +13,9 @@ namespace Aquarium.Model
 
     public class AquariumContext : DbContext
     {
-        public AquariumContext() : base()
+        public AquariumContext()
         {
-            
         }
-
         public DbSet<Temperature> Temperature { get; set; }
         public DbSet<LightIntensity> LightInensity { get; set; }
         public DbSet<Surface> Surface { get; set; }

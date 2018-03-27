@@ -12,6 +12,7 @@ namespace Aquarium.Config.Model
         public Temperature Temperature { get; set; }
         public LightIntensity LightIntensity { get; set; }
         public Surface Surface { get; set; }
+        public string ConnectionString { get; set; }
         public bool LogInfo { get; set; }
     }
 }

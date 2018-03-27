@@ -18,9 +18,33 @@ namespace Aquarium
         private string _fileExtension = ".txt";
         private int _logNumber = 1;
 
+        private bool _locked;
+        private object lockingObject = new object();
+
         public string GetLogPath()
         {
             return _logFilePath + _fileName + _fileExtension;
+        }
+
+        private void Lock()
+        {
+            lock (lockingObject)
+            {
+                while (_locked)
+                {
+
+                }
+
+                _locked = true;
+            }
+        }
+
+        private void UnLock()
+        {
+            lock (lockingObject)
+            {
+                _locked = false;
+            }
         }
 
         public void Write(string message, LoggerTypes.LogLevel logLevel = LoggerTypes.LogLevel.Error)
@@ -28,6 +52,7 @@ namespace Aquarium
             if (logLevel == LoggerTypes.LogLevel.Info && !LogInfo)
                 return;
 
+            Lock();
             var logLine = "";
             using (var stream = File.OpenWrite(GetLogPath()))
             {
@@ -41,6 +66,7 @@ namespace Aquarium
                     }
                 }
             }
+            UnLock();
 
             Console.Write(logLine);
         }

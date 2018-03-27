@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -26,10 +27,12 @@ namespace Aquarium
         {
             try
             {
+                //SetupConnectionString();
                 SetupAutofac();
                 using (var autofacScope = Container.BeginLifetimeScope())
                 {
                     _configManager = autofacScope.Resolve<IConfigManager>();
+                    
                     _logger = autofacScope.Resolve<ILogger>();
                     _arduinoService = autofacScope.Resolve<IArduinoService>();
                     _lightControllService = autofacScope.Resolve<ILightControllService>();
@@ -38,6 +41,8 @@ namespace Aquarium
                     _surfaceService = autofacScope.Resolve<ISurfaceService>();
                 }
 
+                
+                _logger.LogInfo = _configManager.GetConfig().LogInfo;
                 _logger.Write("Starting services.", LoggerTypes.LogLevel.System);
                 if (SetupArduinoConnection())
                 {
@@ -108,7 +113,7 @@ namespace Aquarium
             //Logger.Write("Setup Autofac", LoggerTypes.LogLevel.Info);
             Console.WriteLine("Setup Autofac");
             var builder = new ContainerBuilder();
-            builder.RegisterType<Model.AquariumContext>().SingleInstance();
+            builder.RegisterType<Model.AquariumContext>().InstancePerLifetimeScope();
             builder.RegisterType<ArduinoService>().As<IArduinoService>().SingleInstance();
             builder.RegisterType<ConfigManager>().As<IConfigManager>().SingleInstance();
             builder.RegisterType<Logger>().As<ILogger>().SingleInstance();
@@ -135,6 +140,18 @@ namespace Aquarium
             _logger.LogInfo = _configManager.GetConfig().LogInfo;
         }
 
+        private void SetupConnectionString()
+        {
+            ILogger logger = new Logger();
+            var configManager = new ConfigManager(logger);
+            var connectionString = configManager.GetConfig().ConnectionString;
+
+            var config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+            var connectionStringsSection = (ConnectionStringsSection)config.GetSection("connectionStrings");
+            connectionStringsSection.ConnectionStrings["Aquarium"].ConnectionString = connectionString;
+            config.Save();
+            ConfigurationManager.RefreshSection("connectionStrings");
+        }
 
     }
 }

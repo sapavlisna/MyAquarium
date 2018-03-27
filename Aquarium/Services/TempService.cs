@@ -59,8 +59,10 @@ namespace Aquarium
             {
                 _logger.Write("Getting Temps", LoggerTypes.LogLevel.Info);
                 var resultString = GetTemp();
+                _logger.Write($"Got Temps: {resultString}", LoggerTypes.LogLevel.Info);
                 var results = ParseResults(resultString);
                 await SaveAsync(results);
+                
             }
             catch (Exception ex)
             {
@@ -73,11 +75,12 @@ namespace Aquarium
             try
             {
                 _dbContext.Temperature.AddRange(results);
-                await _dbContext.SaveChangesAsync();
+                int x = await _dbContext.SaveChangesAsync();
+                _logger.Write($"{x} records of temps saved", LoggerTypes.LogLevel.Info);
             }
             catch (Exception ex)
             {
-
+                _logger.Write(ex);
             }
         }
 

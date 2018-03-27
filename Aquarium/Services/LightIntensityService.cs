@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
 using Aquarium.Classes;
+using Aquarium.Log;
 using Aquarium.Model;
 using Config.Model.Config;
 
@@ -14,16 +15,18 @@ namespace Aquarium.Services
     {
         private IArduinoService _arduinoService;
         private IConfigManager _configManager;
+        private ILogger _logger;
         private AquariumContext _aquariumContext;
         private Timer _timer;
         private int _interval;
         private bool _isRunning;
 
-        public LightIntensityService(IArduinoService arduinoService, IConfigManager configManager, AquariumContext aquariumContext)
+        public LightIntensityService(IArduinoService arduinoService, IConfigManager configManager, AquariumContext aquariumContext, ILogger logger)
         {
             this._arduinoService = arduinoService;
             this._configManager = configManager;
             this._aquariumContext = aquariumContext;
+            this._logger = logger;
 
             _timer = new Timer();
             _timer.Elapsed += timer_Elapsed;
@@ -82,7 +85,7 @@ namespace Aquarium.Services
             foreach (var pin in pins)
             {
                 var value = GetValue(pin);
-
+                _logger.Write($"Measured light intensity {value}", LoggerTypes.LogLevel.Info);
                 lightIntensityList.Add(new LightIntensity
                 {
                     CreateDate = DateTime.Now,
@@ -97,7 +100,12 @@ namespace Aquarium.Services
 
         public int SaveValues(IEnumerable<LightIntensity> lightIntensities)
         {
-            _aquariumContext.LightInensity.AddRange(lightIntensities);
+            var a = lightIntensities.Count();
+            foreach (var lightIntensity in lightIntensities)
+            {
+                _aquariumContext.LightInensity.Add(lightIntensity);
+            }
+            //_aquariumContext.LightInensity.AddRange(lightIntensities);
             return _aquariumContext.SaveChanges();
         }
     }
