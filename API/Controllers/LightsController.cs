@@ -13,11 +13,6 @@ namespace API.Controllers
     {
         private ILightControllService _lightControllService;
 
-        public LightsController()
-        {
-            
-        }
-
         public LightsController(ILightControllService lightControllService)
         {
             _lightControllService = lightControllService;

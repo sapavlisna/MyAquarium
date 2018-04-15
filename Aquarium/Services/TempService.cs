@@ -98,7 +98,7 @@ namespace Aquarium
             _isRunning = false;
         }
 
-        private List<Temperature> ParseResults(string result)
+        public List<Temperature> ParseResults(string result)
         {
             var records = result.Split(';');
             var resultList = new List<Temperature>();
@@ -128,7 +128,7 @@ namespace Aquarium
             return resultList;
         }
 
-        private string GetTemp()
+        public string GetTemp()
         {
             _logger.Write("Call arduino Getting Temps", LoggerTypes.LogLevel.Info);
             return _arduino.GetTemp(_config.GetConfig().Temperature.Pin);

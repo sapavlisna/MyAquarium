@@ -76,9 +76,22 @@ namespace Aquarium
         private void SetCurrentState()
         {
             var lightState = this.lightStates.Where(p => p.Status == LightDayStatus.Skip).OrderBy(p => p.DayOfWeek).ThenBy(p => p.Time).Last();
-            logger.Write($"Setting startup intensity {lightState.DayOfWeek}\t{lightState.Time}\t{lightState.LightIntensity}", LoggerTypes.LogLevel.System);
-            arduino.SetPWM(configLights.LightPinNumber, PercentToValue(lightState.LightIntensity));
-            currentIntensity = PercentToValue(lightState.LightIntensity);
+            if (lightState != null)
+            {
+                logger.Write(
+                    $"Setting startup intensity {lightState.DayOfWeek}\t{lightState.Time}\t{lightState.LightIntensity}",
+                    LoggerTypes.LogLevel.System);
+                arduino.SetPWM(configLights.LightPinNumber, PercentToValue(lightState.LightIntensity));
+                currentIntensity = PercentToValue(lightState.LightIntensity);
+            }
+            else
+            {
+                logger.Write(
+                    $"Setting default intensity 0",
+                    LoggerTypes.LogLevel.System);
+                arduino.SetPWM(configLights.LightPinNumber, PercentToValue(0));
+                currentIntensity = PercentToValue(0);
+            }
         }
 
         private IOrderedEnumerable<LightState> GetSortedTimes()

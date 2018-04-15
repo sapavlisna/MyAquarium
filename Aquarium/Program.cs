@@ -20,7 +20,7 @@ namespace Aquarium
                 mainController = new MainController();
                 //TODO Wait to don't kill inner threads better way
                 Console.WriteLine("Waiting");
-                Console.ReadLine();
+                Thread.Sleep(Timeout.Infinite);
                 Console.WriteLine("END1");
             }
             catch (Exception e)

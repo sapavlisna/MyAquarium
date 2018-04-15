@@ -38,7 +38,6 @@ namespace API
                 ContractResolver = new CamelCasePropertyNamesContractResolver()
             };
 
-
             var builder = new ContainerBuilder();
             builder.RegisterApiControllers(Assembly.GetExecutingAssembly());
 
@@ -58,9 +57,6 @@ namespace API
             app.UseAutofacMiddleware(container);
             app.UseAutofacWebApi(config);
             app.UseWebApi(config);
-
-
-            
         }
     }
 }
