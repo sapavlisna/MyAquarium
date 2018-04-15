@@ -30,13 +30,13 @@ namespace API
 
                 Thread.Sleep(5000);
 
-                var client = new HttpClient();
+                //var client = new HttpClient();
 
-                var response = client.PostAsync(baseAddress + "api/Lights", new ByteArrayContent(new byte[2])).Result;
+                //var response = client.PostAsync(baseAddress + "api/Lights", new ByteArrayContent(new byte[2])).Result;
 
-                Console.WriteLine(response);
-                Console.WriteLine(response.Content.ReadAsStringAsync().Result);
-                Console.ReadLine();
+                //Console.WriteLine(response);
+                //Console.WriteLine(response.Content.ReadAsStringAsync().Result);
+                //Console.ReadLine();
 
                 Thread.Sleep(Timeout.Infinite);
             }
