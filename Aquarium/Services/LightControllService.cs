@@ -75,7 +75,7 @@ namespace Aquarium
 
         private void SetCurrentState()
         {
-            var lightState = this.lightStates.Where(p => p.Status == LightDayStatus.Skip).OrderBy(p => p.DayOfWeek).ThenBy(p => p.Time).Last();
+            var lightState = this.lightStates.Where(p => p.Status == LightDayStatus.Skip).OrderByDescending(p => p.DayOfWeek).ThenByDescending(p => p.Time).FirstOrDefault();
             if (lightState != null)
             {
                 logger.Write(
